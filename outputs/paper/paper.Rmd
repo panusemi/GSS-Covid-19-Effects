@@ -1,0 +1,538 @@
+---
+title: "Negative Changes of Individuals Health and Life Satisfaction in the US in 2021 GSS"
+author: 
+  - Emily Panus
+thanks: "Code and data are available at: https://github.com/panusemi/GSS-Covid-19-Effects.git."
+date: "22 March 2021"
+abstract: "During the COVID-19 pandemic, populations all across the world were effected mentally, physically, socially, and economically. The General Social Survey examines and explain trends in the US population opinions, attitudes, and behaviors towards their well-being and economical and social issues. The GSS completed in 2021 compared to results of survey in 2018, will demonstrate the effects of the American society and social changes including and the decreases in their physical, mental well-being and overall quality of life. The examined results of GSS can determine the health and functioning of society and its people that allows for growth and development in the nation."
+output:
+  bookdown::pdf_document2
+toc: FALSE
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::write_bib(c("base", "tidyverse","knitr", "ggplot2", "haven", "Rmarkdown"), file="references.bib")
+library(tidyverse)
+library(ggplot2)
+```
+
+# Introduction
+
+The General Social Survey (GSS) is conducted in many countries to get a grasp on the well-being and opinions of its citizens. By monitoring and examining trends in the population’s attitudes and behaviours on many social, ethical, political concerns, are able to see the changes in structure and functioning of economy based on the beliefs of many different groups of people. Public opinion and satisfaction are an important role when creating public policies. The 2021 conducted General Social survey will help us understand the representativeness of individual views and experiences that occurred during the time of the Covid-19 pandemic. We will focus on the quantitative results of the GSS on people's opinions and behaviors on their own physical, mental well-being and quality of life that can be used to make important decisions and conclusions on how the significance of individual input on Covid-19.\newline
+
+The pandemic crisis has effected all nations socially and economically. Although Covid-19 is a virus that causes an illness or disease of a respiratory tract infection that have observed to range from mild to deadly, depending on many factors, many have unfortunately experienced a toll on their mental health and well-being. To prevent and terminate this infectious disease, lockdowns were put into play as well as policies to maintain distance from each other were isolating along with other uncertainties and tragedies of unemployment, grief, and trauma of not knowing what the future holds. It has been observed that suicide deaths for males in age groups 10–14 years, 15–24 years, and 25–34 years increased as well as more prevalent in males of colour (Curtin et al. 2021). \newline
+
+This would indicate that the General Social Survey conducted to assess US citizens opinions during Covid-19 concerns, would show that as a result of isolation and such there is a decrease in quality of life based on the many communities and racial groups who participated. The main goal and focus are to observe the changes in the mental and physical health of individuals during the pandemic. Due to the pandemic, for safety, the 2021 GSS cross-section, observations of different individuals at a given time, used an address-based sampling of an online self-administered questionnaire. Survey uses stratification and geographic distribution to appeal to all individuals, examining the individual input in health and life satisfaction responses. From the responses, our survey reveals the negative changes that many people endured on theory happiness, physical and mental health, financial satisfaction, and quality of life during the pandemic times.  
+
+
+# Data
+
+The General Social Survey assess the opinions of the population of United States by sampling adults 18 years or older who live in noninstitutional housing at the time of interviewing. The sample is drawn using an area probability design that randomly selects individuals in households across urban, suburban, and rural geographic areas in the United States. Due to the pandemic the survey could no longer be done in person and subjects were mailed materials that provide web link to invite people to participate on the web, with a phone option available. Participation in the study is strictly voluntary and resulted in a 17.4% response rate and final sample of 4,032 individuals. The GSS was gathered through December 1, 2020, to May 3, 2021. The survey is funded by the National Science Foundation, whose goal is to advance the health and prosperity of the nation, and has been completed, tracked, and analyzed every 2 years from 1972. \newline
+
+Like previously mentioned, the Covid-19 virus was spreading and effecting many people in 2020, which effected the GSS distribution and had to be changed for safety and preventative measures, which in previous years was done face-to-face. The redesign included two studies of the GSS where the first strata were past respondents of the GSS from the 2016 and 2018 cross section and the second were the respondents were a newly selected cross section. The 2018 data was performed face-to-face. The data taken, used, and analyzed is from the second study of all newly selected participants who answered a web administered questionnaire from December 2020 to May 2021, as the first study is provided separately. \newline
+
+The GSS contains a standard core of demographic, behavioral, and attitudinal questions, plus topics of special interest that have been keeping similar topics and sampling approach since 1972. Some of the main subjects included are civil liberties, crime and violence, intergroup tolerance, morality, national spending priorities, psychological well-being, social mobility, and stress and traumatic events. We will be focusing on the variables and questions that describe health and social aspects and see the effects of people’s attitude towards how they feel about their well-being in the times of Covid-19 compared to times before the pandemic. The subject matter of healthy people in this survey is focused on self-rated perceptions of mental and physical health. It was proposed to the GSS by William T. Riley, Director, Office of Behavioral and Social Sciences Research, National Institutes of Health and used in 2018. The concerns of Covid-19 have been displayed in most aspects of our lives and obtaining opinions from citizens on the many issues facing the US can help decision makers to help overcome such challenges.  This report was cleaned and analyzed using `R` [@R-base], `haven`[@R-haven], `tidyverse`[@R-tidyverse], `knitr`[@R-knitr], and `ggplot2`[@R-ggplot2]. 
+
+
+```{r, echo=FALSE}
+prepared_gss <- read.csv("C:/Users/Emily's Laptop/Desktop/gss_analysis-master/outputs/data/prepared_gss.csv")
+```
+
+```{r, echo=FALSE}
+prepared_gss2018 <- read.csv("C:/Users/Emily's Laptop/Desktop/gss_analysis-master/outputs/data/prepared_gss2018.csv")
+```
+
+\newpage
+
+```{r gender, fig.cap="Gender dstribution of participants in 2021 GSS", echo = FALSE}
+prepared_gss$gender[is.na(prepared_gss$gender)] <- "No Response"
+
+ggplot(prepared_gss, aes(x=gender))+
+  geom_bar(fill = "darkblue")+
+  theme_minimal()+
+  xlab("Gender")+
+  ylab("")
+```
+
+
+\newpage
+
+
+
+```{r age, fig.cap="Age distribution of participants in 2021 GSS", echo = FALSE, warning=FALSE}
+prepared_gss <- prepared_gss %>% 
+  mutate(age = case_when(
+      age >= 18 & age <= 24 ~ "18-24",
+      age > 24 & age <= 34 ~ "25-34",
+      age > 34 & age <= 44 ~ "35-44",
+      age > 44 & age <= 54 ~ "45-54",
+      age > 54 & age <= 64 ~ "55-64",
+      age > 64 & age <= 74 ~ "65-74",
+      age >= 75 ~ "75 or over"))
+age_df <- prepared_gss %>% 
+  select(age) %>% 
+  count(age)
+
+age_df$age[is.na(age_df$age)] <- "No Response"
+
+ggplot(age_df, aes(x=age, y=n))+
+  geom_col(fill="darkblue")+
+  theme_minimal()+
+  xlab("Age")+
+  ylab("")
+
+``` 
+
+
+
+\newpage
+
+
+
+```{r degree, fig.cap="Education degree distribution of participants in 2021 GSS", echo = FALSE, warning=FALSE}
+prepared_gss$degree[is.na(prepared_gss$degree)] <- "No Response"
+
+prepared_gss$degree <- factor(prepared_gss$degree, levels=c("Less than High School", "High School", "Associate/Junior College", "Bachelors", "Graduates", "No Response"))
+
+ggplot(prepared_gss, aes(x=degree))+
+  geom_bar(fill="darkblue")+
+  theme_minimal()+ 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  xlab("Degree")+
+  ylab("")
+```
+
+
+\newpage
+
+
+
+```{r income, fig.cap="Income distribution of participants in 2021 GSS.", echo = FALSE, warning=FALSE}
+
+prepared_gss$income[is.na(prepared_gss$income)] <- "No Response"
+
+prepared_gss$income <- factor(prepared_gss$income, levels=c("Under $1000", "$1000 to $2999", "$3000 to $3999", "$4000 to $4999", "$5000 to $5999", "$6000 to $6999", "$7000 to $7999", "$8000 to $9999", "$10000 to $14999", "$15000 to $19999", "$20000 to $24999", "$25000 or more", "Refused", "No Response"))
+
+ggplot(prepared_gss, aes(y=income))+
+  geom_bar(fill="darkblue")+
+  theme_minimal()+
+  xlab("")+
+  ylab("Income")
+```
+
+
+\newpage
+
+
+
+```{r race,  fig.cap= "Race distribution of 2021 GSS participants", echo = FALSE, warning=FALSE}
+race <- prepared_gss %>% select(white:hispanic)
+race <- gather(race, key, val, white:hispanic)
+
+ggplot(race, aes(x=key, y=val))+
+  geom_col(fill="darkblue")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))+
+  xlab("Race")+
+  ylab("")
+```
+
+
+\newpage
+
+
+
+```{r vaccine, fig.cap="Confidence in federal government ensuring the safety of vaccines to protect the public against serious disease.", echo = FALSE, warning=FALSE}
+
+prepared_gss$confedvac[is.na(prepared_gss$confedvac)] <- "No Response"
+
+prepared_gss$confedvac <- factor(prepared_gss$confedvac, levels=c("A great deal", "Only some", "Hardly any", "No Response"))
+
+ggplot(prepared_gss, aes(x=confedvac))+
+  geom_bar(fill="darkblue")+
+  theme_minimal()+
+  xlab("Confidence in government ensuring safety of vaccines")+
+  ylab("")
+```
+
+
+\newpage 
+
+
+
+```{r covidvaccine, fig.cap="Confidence in federal government ensuring the safety of vaccines to protect the public against COVID-19.", echo = FALSE, warning=FALSE}
+prepared_gss$confedvacy[is.na(prepared_gss$confedvacy)] <- "No Response"
+
+prepared_gss$confedvacy <- factor(prepared_gss$confedvacy, levels=c("A great deal", "Only some", "Hardly any", "No Response"))
+
+ggplot(prepared_gss, aes(x=confedvacy))+
+  geom_bar(fill="darkblue")+
+  theme_minimal()+
+  xlab("Confidence in government ensuring safety of vaccines against COVID-19")+
+  ylab("")
+```
+
+
+\newpage
+
+
+```{r financialsituation, fig.cap="Financial situation of GSS participants in 2018 vs 2021", echo = FALSE, warning=FALSE}
+colours <- c("2018" = "blue", "2021" = "orange")
+
+prepared_gss$finalter[is.na(prepared_gss$finalter)] <- "No Response"
+prepared_gss$finalter <- factor(prepared_gss$finalter, levels=c("Getting better", "Stayed the same", "Getting worse", "No Response"))
+
+prepared_gss2018$finalter[is.na(prepared_gss2018$finalter)] <- "No Response"
+prepared_gss2018$finalter <- factor(prepared_gss2018$finalter, levels=c("Getting better", "Stayed the same", "Getting worse", "No Response"))
+
+ggplot(mapping=aes(x=finalter))+
+  geom_bar(data=prepared_gss, aes(fill="2021"))+
+  geom_bar(data=prepared_gss2018, aes(fill="2018"))+
+  labs(fill="Year")+
+  scale_fill_manual(values = colours)+
+  xlab("Financial situation")+
+  ylab("")+
+  theme_minimal()
+```
+
+\newpage
+
+
+
+```{r physical, fig.cap="Physical health of GSS participants in 2018 vs 2021", echo = FALSE, warning=FALSE}
+colours <- c("2018" = "blue", "2021" = "orange")
+
+prepared_gss$hlthphys[is.na(prepared_gss$hlthphys)] <- "No Response"
+prepared_gss$hlthphys <- factor(prepared_gss$hlthphys, levels=c("Excellent", "Very Good", "Good", "Fair", "Poor", "No Response"))
+
+prepared_gss2018$hlthphys[is.na(prepared_gss2018$hlthphys)] <- "No Response"
+prepared_gss2018$hlthphys <- factor(prepared_gss2018$hlthphys, levels=c("Excellent", "Very Good", "Good", "Fair", "Poor", "No Response"))
+
+ggplot(mapping=aes(x=hlthphys))+
+  geom_bar(data=prepared_gss, aes(fill="2021"))+
+  geom_bar(data=prepared_gss2018, aes(fill="2018"))+
+  labs(fill="Year")+
+  scale_fill_manual(values = colours)+
+  theme_minimal()+
+  xlab("Physical health")+
+  ylab("")
+```
+
+
+\newpage
+
+
+
+```{r mental, fig.cap="Mental health of GSS participants in 2018 vs 2021", echo = FALSE, warning=FALSE}
+colours <- c("2018" = "blue", "2021" = "orange")
+
+prepared_gss$hlthmntl[is.na(prepared_gss$hlthmntl)] <- "No Response"
+prepared_gss$hlthmntl <- factor(prepared_gss$hlthmntl, levels=c("Excellent", "Very Good", "Good", "Fair", "Poor", "No Response"))
+
+prepared_gss2018$hlthmntl[is.na(prepared_gss2018$hlthmntl)] <- "No Response"
+prepared_gss2018$hlthmntl <- factor(prepared_gss2018$hlthmntl, levels=c("Excellent", "Very Good", "Good", "Fair", "Poor", "No Response"))
+
+ggplot(mapping=aes(x=hlthmntl))+
+  geom_bar(data=prepared_gss, aes(fill="2021"))+
+  geom_bar(data=prepared_gss2018, aes(fill="2018"))+
+  labs(fill="Year")+
+  scale_fill_manual(values = colours)+
+  theme_minimal()+
+  xlab("Mental health")+
+  ylab("")
+```
+
+
+\newpage
+
+
+
+```{r social, fig.cap="Satisfaction of social activities & relationships of GSS participants in 2018 vs 2021", echo = FALSE, warning=FALSE}
+colours <- c("2018" = "blue", "2021" = "orange")
+
+prepared_gss$satsoc[is.na(prepared_gss$satsoc)] <- "No Response"
+prepared_gss$satsoc <- factor(prepared_gss$satsoc, levels=c("Excellent", "Very Good", "Good", "Fair", "Poor", "No Response"))
+
+prepared_gss2018$satsoc[is.na(prepared_gss2018$satsoc)] <- "No Response"
+prepared_gss2018$satsoc <- factor(prepared_gss2018$satsoc, levels=c("Excellent", "Very Good", "Good", "Fair", "Poor", "No Response"))
+
+ggplot(mapping=aes(x=satsoc))+
+  geom_bar(data=prepared_gss, aes(fill="2021"))+
+  geom_bar(data=prepared_gss2018, aes(fill="2018"))+
+  labs(fill="Year")+
+  scale_fill_manual(values = colours)+
+  theme_minimal()+
+  xlab("Satisfaction of social activities & relationships")+
+  ylab("")
+```
+
+
+\newpage
+
+
+
+```{r qualityoflife, fig.cap="Quality of life of GSS participants in 2018 vs 2021", echo = FALSE, warning=FALSE}
+colours <- c("2018" = "blue", "2021" = "orange")
+
+prepared_gss$quallife[is.na(prepared_gss$quallife)] <- "No Response"
+prepared_gss$quallife <- factor(prepared_gss$quallife, levels=c("Excellent", "Very Good", "Good", "Fair", "Poor", "No Response"))
+
+prepared_gss2018$quallife[is.na(prepared_gss2018$quallife)] <- "No Response"
+prepared_gss2018$quallife <- factor(prepared_gss2018$quallife, levels=c("Excellent", "Very Good", "Good", "Fair", "Poor", "No Response"))
+
+ggplot(mapping=aes(x=quallife))+
+  geom_bar(data=prepared_gss, aes(fill="2021"))+
+  geom_bar(data=prepared_gss2018, aes(fill="2018"))+
+  labs(fill="Year")+
+  scale_fill_manual(values = colours)+
+  theme_minimal()+
+  xlab("Quality of life")+
+  ylab("")
+```
+
+
+\newpage
+
+
+
+```{r health, fig.cap="Health of GSS participants in 2018 vs 2021", echo = FALSE, warning=FALSE}
+colours <- c("2018" = "blue", "2021" = "orange")
+
+prepared_gss$health[is.na(prepared_gss$health)] <- "No Response"
+prepared_gss$health <- factor(prepared_gss$health, levels=c("Excellent", "Good", "Fair", "Poor", "No Response"))
+
+prepared_gss2018$health[is.na(prepared_gss2018$health)] <- "No Response"
+prepared_gss2018$health <- factor(prepared_gss2018$health, levels=c("Excellent", "Good", "Fair", "Poor", "No Response"))
+
+ggplot(mapping=aes(x=health))+
+  geom_bar(data=prepared_gss, aes(fill="2021"))+
+  geom_bar(data=prepared_gss2018, aes(fill="2018"))+
+  labs(fill="Year")+
+  scale_fill_manual(values = colours)+
+  theme_minimal()+
+  xlab("Health")+
+  ylab("")
+  
+```
+
+
+\newpage
+
+
+
+```{r life, fig.cap="Life of GSS participants in 2018 vs 2021", echo = FALSE, warning=FALSE}
+colours <- c("2018" = "blue", "2021" = "orange")
+
+prepared_gss$life[is.na(prepared_gss$life)] <- "No Response"
+prepared_gss$life <- factor(prepared_gss$life, levels=c("Exciting", "Routine", "Dull", "No Response"))
+
+prepared_gss2018$life[is.na(prepared_gss2018$life)] <- "No Response"
+prepared_gss2018$life <- factor(prepared_gss2018$life, levels=c("Exciting", "Routine", "Dull", "No Response"))
+
+ggplot(mapping=aes(x=life))+
+  geom_bar(data=prepared_gss, aes(fill="2021"))+
+  geom_bar(data=prepared_gss2018, aes(fill="2018"))+
+  labs(fill="Year")+
+  scale_fill_manual(values = colours)+
+  theme_minimal()+
+  xlab("Life")+
+  ylab("")
+```
+
+
+\newpage
+
+
+
+```{r happy, fig.cap="Happiness of GSS participants in 2018 vs 2021", echo = FALSE, warning=FALSE}
+colours <- c("2018" = "blue", "2021" = "orange")
+
+prepared_gss$happy[is.na(prepared_gss$happy)] <- "No Response"
+prepared_gss$happy <- factor(prepared_gss$happy, levels=c("Very Happy", "Pretty Happy", "Not too Happy", "No Response"))
+
+prepared_gss2018$happy[is.na(prepared_gss2018$happy)] <- "No Response"
+prepared_gss2018$happy <- factor(prepared_gss2018$happy, levels=c("Very Happy", "Pretty Happy", "Not too Happy", "No Response"))
+
+ggplot(mapping=aes(x=happy))+
+  geom_bar(data=prepared_gss, aes(fill="2021"))+
+  geom_bar(data=prepared_gss2018, aes(fill="2018"))+
+  labs(fill="Year")+
+  scale_fill_manual(values = colours)+
+  theme_minimal()+
+  xlab("Happiness")+
+  ylab("")
+```
+
+
+\newpage
+
+
+
+# Results
+
+## Survey
+The part of the General Social Survey that will be discussed is people’s satisfaction and opinions on how they feel about their physical and mental health, social aspects of their lives, happiness, and overall quality of life before and after the pandemic. The GSS consists of copious amounts of questions which focus on categories relating to demographics, politics, economics, and social issues and was created to determine US citizens satisfaction and attitudes towards such current questions related to the economy and community they are living in. The aims of the report are based on 2018 and 2021 opinions from US citizens towards how COVID-19 pandemic affected their personal lives for better or worse. The questions asked participants to reflect and are presented in a ranking or multiple-choice format discussing their personal demographics as well as their beliefs on quality of life, happiness, and government trust. Due to the large amount of questions in the survey, the use of rank and categorical questions was to not disincentive participants from taking it by making it too time consuming and to avoid response bias from our respondents. Gender, age, degree, race, income was based on a multiple-choice demographic ranking, while the rest of the questions relate to how respondent feels where question asking about mental and physical health, social satisfaction and quality of life and government trust with vaccines. Generally, the part of the GSS we are observing aimed to predict the consequences of isolation based on the current COVID-19 pandemic and using the measure of individuals direct effects they observed in their lives. 
+
+
+## Results
+
+The main demographics that characterize socioeconomic information of the participants are included from Figure \@ref(fig:gender) to Figure \@ref(fig:race). The figures illustrate gender, age, degree, race, income of the respondents. We see that in Figure \@ref(fig:gender) that the largest portion of respondents were female compared to male and the smallest portion of participants being transgender. The 2021 GSS has a fairly uniform distribution of age groups (Figure \@ref(fig:age)), which is important as the survey takes into consideration wide range of people of all levels, creating more accurate results of attitudes and behaviors on peoples levels of happiness, quality of happiness, etc. The participant’s age was imputed as continuous variable, but for easier analysis I categorized in groups. Figure \@ref(fig:degree) also illustrates a fairly even distribution of levels of degrees and education obtained by participants. Participants with high school degree have the highest proportion along with bachelor’s degree and less than high school degree having the least amount of participants. Race and income both have very skewed distributions. Race in Figure \@ref(fig:race) has most respondents being white, with almost the whole population of respondents being white, next to black and Hispanic with a lot smaller proportions. This may indicate a response bias towards favoring the white population impact the societal response to the person and create bias results as race may affect the quality of life and health. Income (Figure \@ref(fig:income)), also illustrates that most of the population participating in survey earn more than 25,000 dollars.  I think this category could be split up in more accurate and specific groups (or include more groups after 25,000 dollars) as we see most people have that income. This may also indicate a response bias towards those who feel that their quality of life, happiness or heath improved or not. \newline
+
+Additionally, Figure \@ref(fig:financialsituation)- Figure\@ref(fig:happy), display the behavioural and attitudinal aspects of population of respondents.  Figure Figure \@ref(fig:vaccine) it seems that respondents’ opinions on the confidence they have in the federal government ensuring the safety of vaccines to protect the public against serious diseases are not to positive as a great proportion did not respond or replied that they only had some confidence which was a fairly small proportion. Similarly, respondents’ opinions on the confidence they have in the federal government ensuring the safety of vaccines to protect the public against COVID-19 (Figure\@ref(fig:covidvaccine)) as this survey took place in 2021 after the vaccine was distributed, most people did not respond, and a small and almost equal proportion responded with having a great deal or only some confidence in the government. Furthermore, in figures we are comparing attitudes of respondents in 2018 versus 2021 to analyze the effects the pandemic had on people lives in their opinions.  Figure \@ref(fig:financialsituation) shows us that during the respondent’s financial situation seem to decrease in getting better and stayed the same in 2021 with about the same proportion of their financial situation getting worse in both 2018 and 2021. Due to the isolation and social distance necessary during the pandemic, it is predicted that people’s social activities would decrease, which can be seen in Figure \@ref(fig:social) where the satisfaction of people’s social activities and relationships has a drastic smaller proportion in “Excellent” in 2021 than in 2018, with most people responding that their social activities and relationships were “Good”. We also see that due to the pandemic there was a large rise in people saying there lives became more “Routine” in 2021 versus 2018, while people saying there lives were “Exciting” drastically decreased (Figure \@ref(fig:life). \newline
+
+It is expected that mental and physical heath would decrease in the pandemic due to lack of sociality and isolation that can take a toll on and individuals mental health and the quick spread of the virus that can severely affect one’s respiratory health can take a toll on and individuals physical health. Figure \@ref(fig:mental) and Figure \@ref(fig:physical) shows that most peoples mental and physical health declined from “Excellent” and “Very good” in 2021 versus 2018 and most respondents believing that their physical and mental heath is “Good” and “Fair” being equal proportion in both 2018 and 2021. Quality of life (Figure \@ref(fig:qualityoflife)) when measured by individual is very subjective, but categorized them by "Excellent", "Very Good", "Good", "Fair", and "Poor" for individuals to reduce respondent burden on answer and expected to decrease during the pandemic. No respondent answered that there quality of life was “Excellent” in 2021 with most responses of their quality of life is “Good”. Finally, Figure \@ref(fig:happy) illustrates the happiness of respondents, which is a hard thing to measure as most of previous variables the health and quality of life, but by using categorical variables does not display the perfect measure for someones quality of life. There was a large decrease in people being “Very happy” in 2021 and an increase in people saying they were “Not too happy” in 2021.  Thus, it is clear that individuals’ happiness, health, and quality of life somewhat decreased during the times of the pandemic versus the times of pre pandemic and with the decrease in their overall life satisfaction, there should be behaviours and policies to improve such effects.
+
+
+
+# Discussion
+
+## First discussion point
+
+Nations measure the growth and well-being of a country using the measure of gross domestic product (GDP), which is the is calculated by summing all the monetary value of the market of final goods and services produced by a country. It gives information about the growth and size of the economy and whether the economy is healthy and preforming well. When the GDP is growing and there is an increase in growth rate indicates a strong economy. While GDP per capita indicates correlation with the trend in living standards over time. However, recently many countries have started to implement a measure of citizens happiness to understand the growth and needs of a nation. Bhutan uses a measure of gross national happiness (GNH) to measures the collective happiness in a nation and uses it in place of GDP to measure the growth of the economy.  GDP has more of a capitalistic way to measure the well-being of an economy and should also involve more of human measures as metrics make the economy more valuable and well balanced. An economy should not only prioritize growth in business and money but should include the priority of its people health, wellness, and happiness making profit in both economical and social ways. As shown in \@ref(results) the pandemic took a toll on people’s happiness and much of the discussion in economy in a pandemic is to prevent recessions and insure not too much loses in wealth economy but should also focus on wellness of the citizens as in times of large unemployment and isolation, the quality of life for many is not well.  
+
+## Second discussion point
+
+This study has demonstrated that everyone is effected by the Covid-19 pandemic in most aspects of life, as many people became unemployment, isolation was necessary to reduce the spread of the virus which plays a hug toll on mental health, those getting sick have lasting effects on their respiratory system and people were overall not content with life and their situations. During the pandemic, it was observed that suicide deaths for males in age groups 10–14 years, 15–24 years, and 25–34 years increased as well as more prevalent in males of colour (Curtin et al. 2021) . In times like these that people in poverty and those that are underprivileged experience a harder time financially, economically, socially. The Covid-19 pandemic created an even larger rise in poverty and inequality, especially to those who are marginalized. The Human Right Watch stated that “among households with incomes below $35,000, 47 percent of adults report being behind on housing payments, and 25 percent say they struggle to put food on the table. Thirty-two percent of low-income adults said they had felt depressed in the previous seven days” (Root & Simet 2021). The government needs to take into consideration the well-being and human rights of its population and create proper levels of support to create a safe, healthy environment for all its citizens and prevent racial and gender inequalities. People of colour are not only more likely to be exposed to the virus, but inequities emerged in healthcare and employment create disproportionate negative effects to underprivileged and people of colour communities. Consequently, the results of the negative effects of Covid-19 might not be as extreme as they truly are in the whole population since the data gathered, especially race and income, is very skewed.  
+
+
+## Third discussion point
+
+Additionally, not only are underprivileged people suffering the most during the times of a pandemic, but just like in this General Social Survey of 2021, people of colour, marginalized people are not being much represent. We see how in Figure \@ref(fig:race), the proportion of white respondents answer the survey is far too high compared to all other aces and ethnicities. The survey was approximately answered by all white citizens in the United States, which can cause much bias in the results of inferring how the total population may experience the pandemic when most races are not being properly presented an accounted for. This does not reflect a good proportion of people of colour and marginalized opinions and there needs to be proper stratification and geographic distribution of the survey to appeal to all individuals, highlighting the significance of individual of different circumstances input in health and quality of life in the United States.  Although measuring the happiness and well-being of citizens is important to grow and have a balanced economy, surveys that include people’s opinions and attitude on certain topics may not always be the most reliable. When discussing one’s health, happiness or quality of life not only are these hard things to measure for an individual and restricting it to categorical answer, i.e., “Excellent”, “Very good”, “Good”, “Fair”, “Poor”, displays the difficulty in measuring and limited amount of responses leading to lack of information and inaccuracies in true results. 
+
+## Weaknesses and next steps
+
+The General Social Survey displays many benefits in tracking the changes in behaviour and attitudes of sociological and economical matters to aid in future management and policies. However, there are some weaknesses in the GSS. The sample collected of the survey is quite small of just 4,032 compared to other surveys like the Census in the United States, which has much more participants. The GSS ask many more specific and innovative questions but has a lot less respondents. A small survey sample in this case makes it difficult and inaccurate to provide assessing patterns, trends, and changes in specific geographic or racial sub-groups or individuals over time.  It would only capture opinions that are representative of an entire population of these subgroup or geographic areas and would not create accurate representations of what is possible happening as it is only assessing few cohorts. Next possible steps would be increasing the number of participants in different cohorts, including more proper stratification and geographic distribution, and improving survey response rate by incentivizing people to take the survey. \newline 
+
+Moreover, the GSS includes questions that are mostly answered categorically, and respondents answer by ranking or choosing a specific choice of multiple choices. This may affect the accuracy of the true attitude and behaviour of citizens towards the many topics discussed, although ranking and multiple-choice questions creates structure, organization, and easier analyses of the data. To obtain a general view of participants beliefs and opinions, adding more variables or allowing them to personally answer what they think to create more accurate trends on people’s opinions on health or public policies for example. However, this may be difficult for the GSS to achieve as there are many specific questions that would take ample amount of time to answer if no choices given plus would cause much more confusion and possible many more unanswered questions, which may de incentivize people to participate. 
+
+
+\newpage
+
+\appendix
+
+# Appendix {-}
+
+
+## Preamble
+
+The purpose of this survey is to further investigate the effects the Covid-19 pandemic had on peoples mental and physical health, financial situations, quality of life and happiness provided by the GSS data. The questions are extracted from the GSS that relate to the topics of study. 
+
+## Questions
+1.	Do you describe yourself as male, female, or transgender?
+-	Male
+-	Female
+-	Transgender
+-	None of these
+2.	Respondent’s age?
+-	Continuous variable that I grouped into:
+-	18-24
+-	25-34
+-	35-44
+-	45-54
+-	55-64
+-	65-74
+-	75 and over
+3.	Respondent’s degree?
+-	Less than a high school 
+-	High school 
+-	Associate/Junior college
+-	Bachelors
+-	Graduates 
+4.	In which of these groups did your total family income, from all sources, fall last year before taxes, that is?
+-	Under $1000
+-	$1000 to $2999
+-	$3000 to $3999
+-	$4000 to $4999
+-	$5000 to $5999
+-	$6000 to $6999
+-	$7000 to $7999
+-	$8000 to $9999
+-	$10000 to $14999
+-	$15000 to $19999
+-	$20000 to $24999
+-	$25000 or more
+5.	What is your race?
+-	White
+-	Black or African American 
+-	American Indian or Alaska Native 
+-	Asian Indian 
+-	Chinese 
+-	Filipino 
+-	Japanese 
+-	Korean 
+-	Vietnamese 
+-	Other Asian 
+-	Native Hawaiian 
+-	Guamanian or Chamorro
+-	Samoan 
+-	Other Pacific Islander 
+-	Some other race
+-	Hispanic 
+6.	Would you say you have a great deal of confidence, only some confidence, or hardly any confidence in the federal government ensuring the safety of vaccines to protect the public against serious diseases?
+-	A great deal
+-	Only some
+-	Hardy any 
+7.	Would you say you have a great deal of confidence, only some confidence, or hardly any confidence at all in the federal government ensuring the safety of vaccines to protect the public against COVID-19?
+-	A great deal
+-	Only some
+-	Hardy any 
+8.	During the last few years, has your financial situation been getting better, worse, or has it stayed the same?
+-	Getting better
+-	Stayed the same
+-	Getting worse
+9.	In general, how would you rate your physical health?
+-	Excellent 
+-	Very good
+-	Good
+-	Fair 
+-	Poor
+10.	In general, how would you rate your mental health, including your mood and your ability to think?
+-	Excellent 
+-	Very good
+-	Good
+-	Fair 
+-	Poor
+11.	In general, how would you rate your satisfaction with your social activities and relationships?
+-	Excellent 
+-	Very good
+-	Good
+-	Fair 
+-	Poor
+12.	In general, would you say your quality of life is…
+-	Excellent 
+-	Very good
+-	Good
+-	Fair 
+-	Poor
+13.	Would you say your own health, in general, is excellent, good, fair, or poor?
+-	Excellent 
+-	Good
+-	Fair 
+-	Poor
+14.	In general, do you find life exciting, pretty routine, or dull?
+-	Exciting
+-	Pretty routine 
+-	Dull
+15.	Taken all together, how would you say things are these days--would you say that you are very happy, pretty happy, or not too happy?
+-	Very happy
+-	Pretty happy
+-	Not too happy 
+
+## End page
+
+If you have any questions about the General Social Survey visit https://gss.norc.org/. If you have any questions about this report you can email emily.panus@mail.utoronto.ca
+
+
+\newpage
+
+
+# References
+Curtin, S. C., Hedegaard, H., & Ahmad, F. B. (2021). Provisional numbers and rates of suicide by month and demographic characteristics: United States, 2020. NVSS-Vital Statistics Rapid Release.
+
+Root, B., & Simet, L. (2021). United States: Pandemic Impact on People in Poverty, Current System Leaves Needs Unmet; Lasting Reforms Needed. Human Rights Watch, 2.
+
+
+
+
